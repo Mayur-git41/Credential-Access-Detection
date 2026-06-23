@@ -18,10 +18,11 @@ Windows VM
 
 Sysmon Logs
      |
+     
 Windows Event Logs
      |
+     
 Sigma Rules
      |
+     
 Detection Results
-     |
-GitHub Repository
