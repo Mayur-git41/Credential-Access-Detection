@@ -3,10 +3,10 @@ Objective:
 
 Detect credential dumping activities such as:
 
-Mimikatz execution
+1)Mimikatz execution
 
-LSASS memory access
+2)LSASS memory access
 
-Credential dumping attempts
+3)Credential dumping attempts
 
-suspicious process creation
+4)suspicious process creation
