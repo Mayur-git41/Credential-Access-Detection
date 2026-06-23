@@ -14,7 +14,6 @@ Detect credential dumping activities such as:
 Architecture
 
 Windows VM
-
      |
 
 Sysmon Logs
