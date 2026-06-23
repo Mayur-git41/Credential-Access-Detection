@@ -10,3 +10,16 @@ Detect credential dumping activities such as:
 3)Credential dumping attempts
 
 4)suspicious process creation
+
+Architecture
+Windows VM
+     |
+Sysmon Logs
+     |
+Windows Event Logs
+     |
+Sigma Rules
+     |
+Detection Results
+     |
+GitHub Repository
