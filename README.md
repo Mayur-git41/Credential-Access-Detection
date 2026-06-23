@@ -1,5 +1,5 @@
 # Credential Access Detection using Sigma Rules
-Objective:
+OBJECTIVE:
 
 Detect credential dumping activities such as:
 
@@ -11,7 +11,7 @@ Detect credential dumping activities such as:
 
 4)suspicious process creation
 
-Architecture:
+ARCHITECTURE:
 
 Windows VM
      |
