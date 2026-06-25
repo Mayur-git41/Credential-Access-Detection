@@ -1,0 +1,15 @@
+Windows 11 Installation
+
+Installed Windows 11 VM for SOC Lab.
+
+Resources:
+- 4GB RAM
+- 2 CPU
+- 60GB Disk
+
+Kali Installation
+
+Used as:
+- Splunk Server
+- Sigma Development
+- Threat Hunting
