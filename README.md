@@ -26,3 +26,10 @@ Sigma Rules
      |
      
 Detection Results
+
+Sysmon Event Logs
+
+Sysmon was successfully installed and configured on the Windows endpoint.
+
+![Sysmon Operational Logs](Sysmon/Sysmon-Install.md.png)
+
