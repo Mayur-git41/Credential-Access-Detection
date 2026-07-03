@@ -1,0 +1,19 @@
+## Install Splunk Enterprise 9.4.3
+'''Bash
+# Go to Downlods
+cd ~/Downloads
+
+# Install Splunk
+sudo dpkg -i splunk*.deb
+
+# Fix dependencies (if needed)
+sudo apt --fix-broken install -y
+
+# Start Splunk
+sudo /opt/splunk/bin/splunk start --accept-license
+
+# Enable Splunk to start on boot
+sudo /opt/splunk/bin/splunk enable boot-start
+
+#Access Splunk Web
+http://localhost:8000
