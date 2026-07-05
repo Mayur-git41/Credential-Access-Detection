@@ -23,3 +23,49 @@ sudo /opt/splunk/bin/splunk enable listen 9997
 
 #Check Forward-server
 sudo /opt/splunk/bin/splunk list forward-server
+
+# Check Splunk Enterprise Status (Ubuntu)
+sudo /opt/splunk/bin/splunk status
+
+# Verify Splunk Enterprise is receiving data on port 9997
+sudo /opt/splunk/bin/splunk display listen
+
+# Restart Splunk Enterprise (if needed)
+sudo /opt/splunk/bin/splunk restart
+
+# Windows Universal Forwarder
+
+# Go to the Splunk Universal Forwarder directory
+cd "C:\Program Files\SplunkUniversalForwarder\bin"
+
+# Check Universal Forwarder status
+splunk status
+
+# Add the Splunk Enterprise server (replace with your Ubuntu VM IP)
+splunk add forward-server <Ubuntu_IP>:9997
+
+# Verify the forward server
+splunk list forward-server
+
+# Restart the Universal Forwarder
+splunk restart
+
+# Searches in Splunk Enterprise (Search & Reporting)
+
+# Show all indexed events
+index=*
+
+# Show internal Splunk events
+index=_internal
+
+# Show event count by host
+index=* | stats count by host
+
+# Show event count by source
+index=* | stats count by source
+
+# Show event count by sourcetype
+index=* | stats count by sourcetype
+
+# Verify internal logs from the Windows Universal Forwarder
+index=_internal host=<Windows_Hostname>
