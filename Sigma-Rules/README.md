@@ -32,3 +32,38 @@ Sigma CLI installed successfully.
 - Installed Sigma CLI
 - Verified installation
 - Ready to convert Sigma rules into Splunk SPL
+
+  # Day 14 – Sigma Rules Repository
+
+## Objective
+Downloaded and explored the official Sigma detection rules repository.
+
+## Environment
+
+- Ubuntu 24.04 LTS
+- Python 3
+- Git
+- Sigma CLI
+
+## Commands Executed
+
+```bash
+cd ~
+
+git clone https://github.com/SigmaHQ/sigma.git
+
+cd sigma
+
+ls
+
+cd rules
+
+ls
+
+find . -name "*.yml" | wc -l
+
+find . -name "*.yml" | head -1
+
+cat <rule-file>
+
+git --version
