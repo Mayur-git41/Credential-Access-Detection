@@ -67,3 +67,38 @@ find . -name "*.yml" | head -1
 cat <rule-file>
 
 git --version
+```
+# Day 15 – PowerShell Encoded Command Detection
+
+## Objective
+Detect suspicious PowerShell encoded command execution using Sigma Rules.
+
+## MITRE ATT&CK Mapping
+Technique: T1059.001 – PowerShell
+
+## Sigma Rule
+
+```yaml
+title: Suspicious PowerShell Encoded Command
+...
+```
+
+## Validation
+
+Rule successfully validated using Sigma CLI.
+
+## Splunk Query
+
+(CommandLine="*-enc*" OR CommandLine="*-encodedcommand*")
+
+## Detection Result
+
+Successfully identified encoded PowerShell execution.
+
+## Screenshots
+
+1. Sigma Rule Creation
+2. Sigma Validation
+3. Sigma to Splunk Conversion
+4. PowerShell Attack Simulation
+5. Splunk Detection
