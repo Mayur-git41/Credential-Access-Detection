@@ -12,9 +12,10 @@ Detect credential dumping activities such as:
 4)suspicious process creation
 
 ARCHITECTURE:
-     |
+     
 Windows VM
      |
+   
      |
 Sysmon Logs
      |
