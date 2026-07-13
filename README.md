@@ -16,13 +16,12 @@ ARCHITECTURE:
 Windows VM
      |
    
-     |
 Sysmon Logs
      |
-     |    
+     
 Windows Event Logs
      |
-     |     
+      
 Sigma Rules
      |
      
