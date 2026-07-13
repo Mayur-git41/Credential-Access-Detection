@@ -1,193 +1,231 @@
-# Credential Access Detection using Sigma Rules
-OBJECTIVE:
+# Credential Access Detection Using Sigma Rules
 
-Detect credential dumping activities such as:
+## Project Summary
 
-1)Mimikatz execution
+This project demonstrates the design and implementation of a detection engineering lab focused on identifying credential theft activities on Windows systems. The solution leverages Sysmon telemetry, Windows Event Logs, Sigma rules, and Splunk to detect behaviors commonly associated with credential dumping attacks.
 
-2)LSASS memory access
+The objective was to simulate real-world Security Operations Center (SOC) workflows by collecting endpoint telemetry, developing detections, validating alerts, and mapping findings to the MITRE ATT&CK framework.
 
-3)Credential dumping attempts
+---
 
-4)suspicious process creation
+## Business Problem
 
-ARCHITECTURE:
-     
-Windows VM
-     |
-   
-Sysmon Logs
-     |
-     
+Credential theft remains one of the most frequently used techniques by attackers to gain unauthorized access, escalate privileges, and move laterally within enterprise environments.
+
+Security teams must be able to detect:
+
+* Credential dumping tools such as Mimikatz
+* Unauthorized access to the LSASS process
+* Suspicious PowerShell activity
+* Abnormal process creation patterns
+* Indicators of credential harvesting attempts
+
+This project addresses these challenges by implementing endpoint visibility and detection mechanisms that can identify potential credential access activity at an early stage.
+
+---
+
+## Solution Overview
+
+A Windows endpoint was configured with Sysmon to generate detailed security telemetry. Sigma rules were then used to define detection logic for credential access techniques. The generated events were collected and analyzed in Splunk to validate detections and investigate suspicious behavior.
+
+### Detection Workflow
+
+```text
+Windows Endpoint
+        │
+        ▼
+     Sysmon
+        │
+        ▼
 Windows Event Logs
-     |
-      
-Sigma Rules
-     |
-     
-Detection Results
-
-Sysmon Event Logs
-
-Sysmon was successfully installed and configured on the Windows endpoint.
-
-Steps involved to execute 
-
-# Sigma CLI Installation
-
-## Objective
-
-Install Sigma CLI on Ubuntu.
-
-## Commands Used
-
-```bash
-sudo apt update
-sudo apt install python3-pip -y
-pip3 install sigma-cli --break-system-packages
-sigma --help
+        │
+        ▼
+Sigma Detection Rules
+        │
+        ▼
+Splunk Analysis & Alerting
+        │
+        ▼
+Security Investigation
 ```
 
-## Verification
+---
 
-Sigma CLI installed successfully.
+## Technologies Used
 
-## Available Commands
+| Technology                 | Purpose                       |
+| -------------------------- | ----------------------------- |
+| Sysmon                     | Endpoint telemetry collection |
+| Sigma Rules                | Detection rule creation       |
+| Splunk Enterprise          | Log ingestion and analysis    |
+| Splunk Universal Forwarder | Event forwarding              |
+| Windows Event Logs         | Security event source         |
+| PowerShell                 | Attack simulation and testing |
+| VirtualBox                 | Lab virtualization            |
+| MITRE ATT&CK               | Threat mapping framework      |
 
-- analyze
-- check
-- convert
-- list
-- plugin
-- pysigma
-- version
+---
 
-## Learning Outcome
+## Project Implementation
 
-- Installed Sigma CLI
-- Verified installation
-- Ready to convert Sigma rules into Splunk SPL
+### 1. Endpoint Monitoring Setup
 
-  # Sigma Rules Repository
+Configured Sysmon on a Windows virtual machine to capture detailed security events including:
 
-## Objective
-Downloaded and explored the official Sigma detection rules repository.
+* Process creation
+* Process access
+* Parent-child process relationships
+* Command-line arguments
+* Security-relevant system activity
 
-## Environment
+This provided enhanced visibility beyond standard Windows logging.
 
-- Ubuntu 24.04 LTS
-- Python 3
-- Git
-- Sigma CLI
+---
 
-## Commands Executed
+### 2. Log Collection Pipeline
 
-```bash
-cd ~
+Implemented centralized log collection using Splunk.
 
-git clone https://github.com/SigmaHQ/sigma.git
+Process:
 
-cd sigma
+1. Installed Splunk Enterprise on Ubuntu.
+2. Installed Splunk Universal Forwarder on Windows.
+3. Configured event forwarding.
+4. Collected Sysmon and Windows Event Logs.
+5. Verified successful ingestion into Splunk.
 
-ls
+---
 
-cd rules
+### 3. Detection Engineering
 
-ls
+Developed Sigma-based detections targeting credential access techniques.
 
-find . -name "*.yml" | wc -l
+Detection coverage included:
 
-find . -name "*.yml" | head -1
+#### Mimikatz Execution Detection
 
-cat <rule-file>
+Identifies execution of known Mimikatz binaries and command patterns associated with credential extraction.
 
-git --version
-```
-# PowerShell Encoded Command Detection
+#### LSASS Memory Access Detection
 
-## Objective
-Detect suspicious PowerShell encoded command execution using Sigma Rules.
+Detects suspicious access attempts targeting the Local Security Authority Subsystem Service (LSASS), a common source of credential dumping.
 
-## MITRE ATT&CK Mapping
-Technique: T1059.001 – PowerShell
+#### Credential Dumping Activity
 
-## Sigma Rule
+Monitors behaviors associated with credential harvesting tools and memory dumping techniques.
 
-```yaml
-title: Suspicious PowerShell Encoded Command
-...
-```
+#### Suspicious Process Creation
 
-## Validation
+Detects abnormal process execution patterns that may indicate attacker activity.
 
-Rule successfully validated using Sigma CLI.
+---
 
-## Splunk Query
+### 4. Validation and Testing
 
-(CommandLine="*-enc*" OR CommandLine="*-encodedcommand*")
+Performed controlled attack simulations to verify detection effectiveness.
 
-## Detection Result
+Testing activities included:
 
-Successfully identified encoded PowerShell execution.
+* PowerShell execution
+* Encoded PowerShell commands
+* Suspicious process launches
+* Credential access behavior simulation
 
-## Screenshots
+Generated events were successfully captured and analyzed through Sysmon and Splunk.
 
-1. Sigma Rule Creation
-2. Sigma Validation
-3. Sigma to Splunk Conversion
-4. PowerShell Attack Simulation
-5. Splunk Detection
+---
 
-# PowerShell Attack Simulation Detection
+## MITRE ATT&CK Coverage
 
-## Objective
+| Technique ID | Technique                         |
+| ------------ | --------------------------------- |
+| T1003        | OS Credential Dumping             |
+| T1003.001    | LSASS Memory                      |
+| T1059.001    | PowerShell                        |
+| T1055        | Process Injection                 |
+| T1548        | Abuse Elevation Control Mechanism |
 
-Simulate suspicious PowerShell execution and detect it using Sysmon Event ID 1 in Splunk.
+---
 
-## Attack Simulation
+## Sample Detection Logic
 
-Command:
+Example detection concepts implemented in the project:
 
-powershell -enc QQBBAA==
+* Detection of PowerShell encoded commands
+* Detection of LSASS access attempts
+* Detection of suspicious process creation
+* Detection of known credential dumping tool execution
 
-## Detection Source
+These detections can be adapted to enterprise SIEM environments for real-world monitoring.
 
-Sysmon Event ID:
+---
 
-1
+## Security Outcomes
 
-Event Name:
+The implemented solution enables security teams to:
 
-Process Creation
+* Detect credential dumping attempts
+* Monitor sensitive process access
+* Improve endpoint visibility
+* Accelerate incident investigation
+* Map detections to ATT&CK techniques
+* Strengthen SOC monitoring capabilities
 
-## MITRE ATT&CK Mapping
+---
 
-Technique:
+## Skills Demonstrated
 
-T1059.001
+### Detection Engineering
 
-Name:
+* Sigma rule development
+* Detection validation
+* Alert tuning
 
-PowerShell
+### SOC Operations
 
-## Tools Used
+* Security monitoring
+* Event analysis
+* Threat investigation
 
-- Splunk Enterprise
-- Splunk Universal Forwarder
-- Sysmon
-- Windows Event Viewer
+### SIEM Engineering
 
-## Detection Query
+* Splunk deployment
+* Log onboarding
+* Search and detection creation
 
-index=main EventCode=1 Image="*powershell.exe*"
+### Endpoint Security
 
-## Evidence
+* Sysmon configuration
+* Windows logging
+* Endpoint telemetry analysis
 
-Screenshots included:
+---
 
-1. Forwarder connection
-2. Sysmon Event ID 1
-3. PowerShell execution
-4. Splunk detection
+## Project Highlights
 
+* Designed and implemented a complete detection engineering lab.
+* Configured Sysmon for enhanced endpoint visibility.
+* Integrated Windows telemetry with Splunk.
+* Developed Sigma-based detections for credential access techniques.
+* Simulated attack activity and validated detections.
+* Mapped findings to the MITRE ATT&CK framework.
+* Demonstrated practical SOC analyst and detection engineering skills.
 
+---
+
+## Future Enhancements
+
+* Automated Sigma-to-Splunk rule conversion.
+* Real-time alerting and dashboard creation.
+* Detection coverage expansion for lateral movement techniques.
+* Integration with Security Onion and Wazuh.
+* Threat hunting use cases and reporting.
+
+---
+
+## Author
+
+**Mayur Suvarna**
+Cyber Security Student | SOC Analyst Enthusiast | Detection Engineering Learner
+
+Focused on Security Operations, Threat Detection, SIEM Engineering, Digital Forensics, and Blue Team Security.
