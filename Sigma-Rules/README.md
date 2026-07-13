@@ -102,3 +102,55 @@ Successfully identified encoded PowerShell execution.
 3. Sigma to Splunk Conversion
 4. PowerShell Attack Simulation
 5. Splunk Detection
+
+# Day 16 - PowerShell Attack Simulation Detection
+
+## Objective
+
+Simulate suspicious PowerShell execution and detect it using Sysmon Event ID 1 in Splunk.
+
+## Attack Simulation
+
+Command:
+
+powershell -enc QQBBAA==
+
+## Detection Source
+
+Sysmon Event ID:
+
+1
+
+Event Name:
+
+Process Creation
+
+## MITRE ATT&CK Mapping
+
+Technique:
+
+T1059.001
+
+Name:
+
+PowerShell
+
+## Tools Used
+
+- Splunk Enterprise
+- Splunk Universal Forwarder
+- Sysmon
+- Windows Event Viewer
+
+## Detection Query
+
+index=main EventCode=1 Image="*powershell.exe*"
+
+## Evidence
+
+Screenshots included:
+
+1. Forwarder connection
+2. Sysmon Event ID 1
+3. PowerShell execution
+4. Splunk detection
