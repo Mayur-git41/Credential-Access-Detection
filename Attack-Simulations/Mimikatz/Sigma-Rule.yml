@@ -1,1 +1,26 @@
+title: Mimikatz Execution Detection
+
+id: day17-mimikatz
+
+status: experimental
+
+description: Detects execution of Mimikatz
+
+logsource:
+product: windows
+category: process_creation
+
+detection:
+selection:
+Image|contains:
+- 'mimikatz.exe'
+
+condition: selection
+
+level: high
+
+tags:
+
+* attack.credential_access
+* attack.t1003.001
 
