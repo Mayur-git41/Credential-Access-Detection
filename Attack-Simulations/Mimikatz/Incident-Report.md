@@ -4,7 +4,7 @@ Incident ID:
 SOC-D17-001
 
 Date:
-[Insert Date]
+14-07-2026
 
 Severity:
 High
