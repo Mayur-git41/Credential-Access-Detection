@@ -57,8 +57,8 @@ Successfully verified Sysmon events in Splunk.
 
 ## Status
 
-✅ Sysmon Installed
+Sysmon Installed
 
-✅ Configuration Applied
+Configuration Applied
 
-✅ Logs Successfully Forwarded to Splunk
+Logs Successfully Forwarded to Splunk
