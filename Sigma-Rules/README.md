@@ -1,156 +1,73 @@
-# Day 13 – Sigma CLI Installation
+# Sigma Detection Rules
 
-## Objective
+## Overview
 
-Install Sigma CLI on Ubuntu.
+Sigma is an open standard used to write vendor-neutral detection rules. These rules can later be converted into Splunk SPL queries.
 
-## Commands Used
+---
 
-```bash
-sudo apt update
-sudo apt install python3-pip -y
-pip3 install sigma-cli --break-system-packages
-sigma --help
-```
+## Objectives
 
-## Verification
+- Learn Sigma Syntax
+- Create Detection Rules
+- Detect Suspicious Activities
+- Map Rules to MITRE ATT&CK
 
-Sigma CLI installed successfully.
+---
 
-## Available Commands
+## Rule Created
 
-- analyze
-- check
-- convert
-- list
-- plugin
-- pysigma
-- version
+### Suspicious PowerShell Encoded Command
 
-## Learning Outcome
+Detection Logic
 
-- Installed Sigma CLI
-- Verified installation
-- Ready to convert Sigma rules into Splunk SPL
+- Detect PowerShell execution
+- Detect use of Base64 encoded commands
+- Identify possible malicious execution
 
-  # Day 14 – Sigma Rules Repository
+---
 
-## Objective
-Downloaded and explored the official Sigma detection rules repository.
-
-## Environment
-
-- Ubuntu 24.04 LTS
-- Python 3
-- Git
-- Sigma CLI
-
-## Commands Executed
-
-```bash
-cd ~
-
-git clone https://github.com/SigmaHQ/sigma.git
-
-cd sigma
-
-ls
-
-cd rules
-
-ls
-
-find . -name "*.yml" | wc -l
-
-find . -name "*.yml" | head -1
-
-cat <rule-file>
-
-git --version
-```
-# Day 15 – PowerShell Encoded Command Detection
-
-## Objective
-Detect suspicious PowerShell encoded command execution using Sigma Rules.
-
-## MITRE ATT&CK Mapping
-Technique: T1059.001 – PowerShell
-
-## Sigma Rule
-
-```yaml
-title: Suspicious PowerShell Encoded Command
-...
-```
-
-## Validation
-
-Rule successfully validated using Sigma CLI.
-
-## Splunk Query
-
-(CommandLine="*-enc*" OR CommandLine="*-encodedcommand*")
-
-## Detection Result
-
-Successfully identified encoded PowerShell execution.
-
-## Screenshots
-
-1. Sigma Rule Creation
-2. Sigma Validation
-3. Sigma to Splunk Conversion
-4. PowerShell Attack Simulation
-5. Splunk Detection
-
-# Day 16 - PowerShell Attack Simulation Detection
-
-## Objective
-
-Simulate suspicious PowerShell execution and detect it using Sysmon Event ID 1 in Splunk.
-
-## Attack Simulation
-
-Command:
-
-powershell -enc QQBBAA==
-
-## Detection Source
-
-Sysmon Event ID:
-
-1
-
-Event Name:
-
-Process Creation
-
-## MITRE ATT&CK Mapping
+## MITRE ATT&CK
 
 Technique:
 
-T1059.001
+T1059.001 - PowerShell
 
-Name:
+T1027 - Obfuscated Files or Information
 
-PowerShell
+---
 
-## Tools Used
+## Detection Fields
 
-- Splunk Enterprise
-- Splunk Universal Forwarder
-- Sysmon
-- Windows Event Viewer
+- Image
+- CommandLine
+- ParentImage
 
-## Detection Query
+---
 
-index=main EventCode=1 Image="*powershell.exe*"
+## Detection Outcome
 
-## Evidence
+Successfully validated Sigma rule syntax.
 
-Screenshots included:
+Rule can be converted into Splunk SPL.
 
-1. Forwarder connection
-2. Sysmon Event ID 1
-3. PowerShell execution
-4. Splunk detection
+---
+
+## Future Rules
+
+- Mimikatz Detection
+- LSASS Access
+- Registry Persistence
+- Scheduled Tasks
+- WMI Persistence
+- PsExec Detection
+
+---
+
+## Status
+
+Sigma Installed
+
+First Detection Rule Created
+
+Rule Validated Successfully
