@@ -82,8 +82,8 @@ Verified:
 
 ## Status
 
-✅ Splunk Installed
+Splunk Installed
 
-✅ Universal Forwarder Configured
+Universal Forwarder Configured
 
-✅ Sysmon Logs Successfully Indexed
+Sysmon Logs Successfully Indexed
