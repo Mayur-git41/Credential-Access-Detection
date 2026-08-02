@@ -1,1 +1,48 @@
+# Day 18 – Credential Access Detection
 
+## Objective
+
+Detect process access events using Sysmon Event ID 10.
+
+## Tools
+
+- Windows 11
+- Sysmon
+- Splunk Enterprise
+
+## MITRE ATT&CK
+
+- TA0006 – Credential Access
+- T1003 – OS Credential Dumping
+- T1003.001 – LSASS Memory
+
+## Splunk Queries
+
+### Process Access
+
+```spl
+index=main sourcetype="XmlWinEventLog:Microsoft-Windows-Sysmon/Operational"
+| xmlkv
+| search EventID=10
+| table _time SourceImage TargetImage GrantedAccess User
+```
+
+### LSASS Access
+
+```spl
+index=main sourcetype="XmlWinEventLog:Microsoft-Windows-Sysmon/Operational"
+| xmlkv
+| search EventID=10 TargetImage="*lsass.exe"
+| table _time SourceImage TargetImage GrantedAccess User
+```
+
+## Result
+
+Observed Sysmon Process Access events and searched for access to `lsass.exe`. This exercise demonstrates how defenders can investigate activity related to credential access.
+
+## Skills Learned
+
+- Sysmon Event ID 10
+- Splunk searches
+- Credential Access detection
+- MITRE ATT&CK mapping
