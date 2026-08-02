@@ -46,3 +46,92 @@ Observed Sysmon Process Access events and searched for access to `lsass.exe`. Th
 - Splunk searches
 - Credential Access detection
 - MITRE ATT&CK mapping
+
+# Day 19 – LSASS Access Detection Using Splunk
+
+## Objective
+
+The objective of this lab was to detect process access to the **Local Security Authority Subsystem Service (LSASS)** using **Sysmon Event ID 10** and **Splunk**. Monitoring LSASS access helps identify potential credential dumping attempts used by attackers.
+
+---
+
+## Lab Environment
+
+- Oracle VirtualBox
+- Windows 11
+- Ubuntu
+- Splunk Enterprise 9.4.3
+- Sysmon
+
+---
+
+## MITRE ATT&CK Mapping
+
+| Tactic | Technique | ID |
+|---------|-----------|----|
+| Credential Access | OS Credential Dumping | T1003 |
+| Credential Access | LSASS Memory | T1003.001 |
+
+---
+
+## Sysmon Event
+
+**Event ID:** 10
+
+**Description:** Process Access
+
+This event logs when one process attempts to access another process. Monitoring access to **lsass.exe** is important because attackers often target it to dump credentials.
+
+---
+
+## Splunk Detection Query
+
+```spl
+index=main sourcetype="XmlWinEventLog:Microsoft-Windows-Sysmon/Operational"
+| xmlkv
+| search EventID=10 lsass
+```
+
+---
+
+## Detection Logic
+
+- Search for Sysmon Process Access events.
+- Filter events containing **lsass.exe**.
+- Review the source process, target process, and access details.
+- Investigate unexpected access to LSASS.
+
+---
+
+## Results
+
+- Successfully searched Sysmon Event ID 10 logs in Splunk.
+- Detected an event containing **lsass.exe**.
+- Verified that the detection query correctly identifies LSASS-related process access.
+- Confirmed the detection can be used to monitor potential credential access activity.
+
+---
+
+## Evidence
+
+Include the screenshot:
+
+**Screenshots/Day19-LSASS-Detection.png**
+
+---
+
+## Skills Learned
+
+- Sysmon Event ID 10 Analysis
+- Splunk SPL Queries
+- Process Access Monitoring
+- LSASS Detection
+- Credential Access Detection
+- MITRE ATT&CK Mapping
+
+---
+
+## Conclusion
+
+This lab demonstrated how to detect LSASS process access using Sysmon and Splunk. The detection query successfully identified an Event ID 10 containing **lsass.exe**, validating the detection logic for monitoring potential credential dumping activity.
+
