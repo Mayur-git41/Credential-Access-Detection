@@ -312,6 +312,186 @@ The exercise demonstrated how a SOC analyst can use process creation telemetry t
 
 ## Conclusion
 
+# Day 21 – Registry Run Key Persistence Detection
+
+## Objective
+
+The objective of Day 21 was to understand and detect Windows Registry Run Key persistence using Sysmon and Splunk.
+
+Registry Run Keys can be used to automatically execute programs when a user logs in. Attackers may abuse this mechanism to maintain persistence on a compromised Windows system.
+
+---
+
+## Lab Environment
+
+* Windows 11
+* Sysmon
+* Splunk Enterprise
+* Splunk Universal Forwarder
+* Oracle VirtualBox
+
+---
+
+## MITRE ATT&CK Mapping
+
+| Tactic      | Technique                                                             | ID        |
+| ----------- | --------------------------------------------------------------------- | --------- |
+| Persistence | Boot or Logon Autostart Execution: Registry Run Keys / Startup Folder | T1547.001 |
+
+---
+
+## Registry Run Key Locations
+
+### Current User
+
+```text
+HKCU\Software\Microsoft\Windows\CurrentVersion\Run
+```
+
+### Local Machine
+
+```text
+HKLM\Software\Microsoft\Windows\CurrentVersion\Run
+```
+
+Programs configured in these locations can automatically start when a user logs in.
+
+---
+
+## Registry Commands Used
+
+### Check Current User Run Keys
+
+```powershell
+reg query "HKCU\Software\Microsoft\Windows\CurrentVersion\Run"
+```
+
+### Check Local Machine Run Keys
+
+```powershell
+reg query "HKLM\Software\Microsoft\Windows\CurrentVersion\Run"
+```
+
+These commands were used to inspect existing Run Key entries.
+
+---
+
+## Sysmon Event
+
+### Event ID 13 – Registry Value Set
+
+Sysmon Event ID 13 records registry value modifications.
+
+This event can be useful for detecting changes to Registry Run Keys.
+
+---
+
+## Splunk Detection Queries
+
+### View Registry Value Changes
+
+```spl
+index=main sourcetype="XmlWinEventLog:Microsoft-Windows-Sysmon/Operational"
+| xmlkv
+| search EventID=13
+```
+
+### Search for Run Key Activity
+
+```spl
+index=main sourcetype="XmlWinEventLog:Microsoft-Windows-Sysmon/Operational"
+| xmlkv
+| search EventID=13 Run
+```
+
+### Count Registry Value Changes
+
+```spl
+index=main sourcetype="XmlWinEventLog:Microsoft-Windows-Sysmon/Operational"
+| xmlkv
+| search EventID=13
+| stats count
+```
+
+---
+
+## Detection Logic
+
+The detection process was:
+
+1. Identify important Windows Registry Run Key locations.
+2. Review existing Run Key entries.
+3. Monitor Sysmon Event ID 13.
+4. Search Splunk for registry value modifications.
+5. Look for activity related to `Run` registry keys.
+6. Investigate the process, user, registry location, and value involved.
+
+---
+
+## Investigation Fields
+
+When a suspicious Registry Run Key modification is detected, the following information should be investigated:
+
+* Registry target
+* Registry value
+* Process responsible for the modification
+* User account
+* Executable path
+* Timestamp
+* Parent process
+
+---
+
+## Security Consideration
+
+A Registry Run Key modification is not automatically malicious. Legitimate applications may also use Run Keys for startup functionality.
+
+A SOC analyst should investigate the context of the modification and determine whether the executable and user activity are expected.
+
+---
+
+## Skills Learned
+
+* Windows Registry Analysis
+* Registry Run Key Persistence
+* Sysmon Event ID 13
+* Splunk SPL
+* Persistence Detection
+* Threat Hunting
+* MITRE ATT&CK Mapping
+
+---
+
+## Evidence
+
+Add screenshots demonstrating:
+
+* Windows Run Key inspection
+* Sysmon Event ID 13
+* Splunk Registry Event Search
+* Run Key detection results
+
+Recommended screenshot:
+
+```text
+Screenshots/Day21-Registry-Run-Key.png
+```
+
+---
+
+## Result
+
+Successfully investigated Windows Registry Run Key persistence and learned how Sysmon Event ID 13 can be used with Splunk to monitor registry value modifications.
+
+---
+
+## Conclusion
+
+Day 21 focused on detecting Registry Run Key persistence. Sysmon Event ID 13 and Splunk provide useful telemetry for monitoring registry modifications that could be associated with persistence.
+
+The detection can be improved by correlating Registry Run Key modifications with the responsible process, user, executable path, and other suspicious activity.
+
+
 Day 20 focused on Windows Discovery detection. By combining Sysmon Event ID 1 with Splunk searches, it is possible to monitor command execution and identify discovery activity that may be relevant during a security investigation.
 
 The detection can be further improved by correlating discovery commands with the user, parent process, command line, and other suspicious events.
