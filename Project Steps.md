@@ -495,3 +495,430 @@ The detection can be improved by correlating Registry Run Key modifications with
 Day 20 focused on Windows Discovery detection. By combining Sysmon Event ID 1 with Splunk searches, it is possible to monitor command execution and identify discovery activity that may be relevant during a security investigation.
 
 The detection can be further improved by correlating discovery commands with the user, parent process, command line, and other suspicious events.
+
+# Day 22 — Windows Service Persistence Detection
+
+## Objective
+
+The objective of Day 22 was to understand how attackers can abuse **Windows Services for persistence** and how a SOC Analyst can detect and investigate service creation using **Sysmon, Splunk, and Sigma**.
+
+---
+
+## Tools Used
+
+* Windows 10/11 Virtual Machine
+* Sysmon
+* Splunk Enterprise
+* Splunk Universal Forwarder
+* Sigma
+* PowerShell
+* Windows Service Control (`sc.exe`)
+
+---
+
+## Attack Technique
+
+**MITRE ATT&CK: T1543.003 — Windows Service**
+
+Attackers can create or modify Windows Services to establish persistence on a compromised system. A service can be configured to execute a program when Windows starts or when the service is started.
+
+In this lab, a harmless test service was created to generate telemetry for detection.
+
+---
+
+# Step 1 — Verify Sysmon
+
+First, Sysmon was checked to make sure it was running.
+
+```powershell
+Get-Service Sysmon64
+```
+
+Expected result:
+
+```text
+Status   Name      DisplayName
+------   ----      -----------
+Running  Sysmon64  Sysmon64
+```
+
+**Screenshot:**
+`01-sysmon-running.png`
+
+---
+
+# Step 2 — Create SOC Lab Directory
+
+A directory was created for the laboratory activities.
+
+```powershell
+mkdir C:\SOC-Lab
+```
+
+The directory was verified using:
+
+```powershell
+Test-Path C:\SOC-Lab
+```
+
+Expected output:
+
+```text
+True
+```
+
+**Screenshot:**
+`02-soc-lab-directory.png`
+
+---
+
+# Step 3 — Create a Test Windows Service
+
+A harmless test service was created using the Windows Service Control utility.
+
+```powershell
+sc.exe create SOC-Test-Service binPath= "C:\Windows\System32\svchost.exe" start= demand
+```
+
+Expected output:
+
+```text
+[SC] CreateService SUCCESS
+```
+
+The service was **not started**.
+
+The service was verified using:
+
+```powershell
+Get-Service SOC-Test-Service
+```
+
+Expected result:
+
+```text
+Status   Name                DisplayName
+------   ----                -----------
+Stopped  SOC-Test-Service    SOC-Test-Service
+```
+
+**Screenshot:**
+`03-service-created.png`
+
+---
+
+# Step 4 — Verify Sysmon Event
+
+Sysmon Event ID 1 was searched because Event ID 1 records **Process Creation**.
+
+```powershell
+Get-WinEvent -FilterHashtable @{
+    LogName = "Microsoft-Windows-Sysmon/Operational"
+    Id = 1
+} -MaxEvents 20 | Format-List TimeCreated, Id, ProviderName, Message
+```
+
+The event containing:
+
+```text
+sc.exe create SOC-Test-Service
+```
+
+was identified.
+
+**Screenshot:**
+`04-sysmon-event.png`
+
+---
+
+# Step 5 — Find the Event in Splunk
+
+The Sysmon event was searched in Splunk using:
+
+```spl
+index=main sourcetype="XmlWinEventLog:Microsoft-Windows-Sysmon/Operational"
+| xmlkv
+| search EventID=1
+| search "SOC-Test-Service"
+```
+
+The event was successfully received by Splunk.
+
+**Screenshot:**
+`05-splunk-event.png`
+
+---
+
+# Step 6 — Extract Important Fields
+
+The following Splunk query was used to display important investigation fields:
+
+```spl
+index=main sourcetype="XmlWinEventLog:Microsoft-Windows-Sysmon/Operational"
+| xmlkv
+| search EventID=1 "SOC-Test-Service"
+| table _time host Computer User Image CommandLine ParentImage ParentCommandLine
+```
+
+Important fields included:
+
+* Time
+* Host
+* Computer
+* User
+* Image
+* CommandLine
+* ParentImage
+* ParentCommandLine
+
+These fields help a SOC Analyst understand **who executed the command, what was executed, and which process started it**.
+
+**Screenshot:**
+`06-splunk-fields.png`
+
+---
+
+# Step 7 — Create Splunk Detection
+
+A detection query was created to identify service creation using `sc.exe`.
+
+```spl
+index=main sourcetype="XmlWinEventLog:Microsoft-Windows-Sysmon/Operational"
+| xmlkv
+| search EventID=1
+| search Image="*\\sc.exe"
+| search CommandLine="* create *"
+| table _time host Computer User Image CommandLine ParentImage ParentCommandLine
+```
+
+An enhanced version was also created:
+
+```spl
+index=main sourcetype="XmlWinEventLog:Microsoft-Windows-Sysmon/Operational"
+| xmlkv
+| search EventID=1
+| search Image="*\\sc.exe" CommandLine="* create *"
+| eval Detection="Potential Service Persistence"
+| table _time host User Image CommandLine ParentImage Detection
+```
+
+The event was successfully identified as:
+
+```text
+Potential Service Persistence
+```
+
+**Screenshot:**
+`07-splunk-detection.png`
+
+---
+
+# Step 8 — Create Sigma Rule
+
+A Sigma rule was created to detect suspicious service creation using `sc.exe`.
+
+File:
+
+```text
+service_creation.yml
+```
+
+Sigma rule:
+
+```yaml
+title: Suspicious Windows Service Creation
+id: 8c2d5b8a-7f2e-4b3a-9d61-123456789001
+status: experimental
+description: Detects service creation using sc.exe, which may indicate persistence.
+author: Mayur
+date: 2026-08-18
+logsource:
+    product: windows
+    category: process_creation
+
+detection:
+    selection:
+        Image|endswith: '\sc.exe'
+        CommandLine|contains: ' create '
+    condition: selection
+
+falsepositives:
+    - Legitimate software installation
+    - System administration
+    - IT maintenance
+
+level: medium
+
+tags:
+    - attack.persistence
+    - attack.t1543.003
+```
+
+**Screenshot:**
+`08-sigma-rule.png`
+
+---
+
+# Step 9 — Validate Sigma Rule
+
+The Sigma rule was validated using:
+
+```bash
+sigma check service_creation.yml
+```
+
+The rule was checked for syntax and configuration errors.
+
+**Screenshot:**
+`09-sigma-validation.png`
+
+---
+
+# Step 10 — SOC Investigation
+
+The generated alert was investigated using the Splunk event data.
+
+The following information was examined:
+
+| Investigation Field | Purpose                               |
+| ------------------- | ------------------------------------- |
+| Time                | Determine when the activity occurred  |
+| User                | Identify who executed the action      |
+| Host                | Identify the affected endpoint        |
+| Image               | Identify the executable               |
+| CommandLine         | Understand the exact command          |
+| ParentImage         | Identify the process that launched it |
+| ParentCommandLine   | Understand the execution context      |
+
+The process chain was analyzed:
+
+```text
+PowerShell
+    ↓
+sc.exe
+    ↓
+Service Creation
+    ↓
+SOC-Test-Service
+```
+
+---
+
+# Alert Assessment
+
+The detection was classified as:
+
+```text
+Severity: Medium
+Verdict: Benign / Authorized
+```
+
+### Reason
+
+The service was intentionally created as part of the SOC laboratory exercise.
+
+Although the activity was benign in this lab, the same behavior could be suspicious in a real environment.
+
+A SOC Analyst would investigate:
+
+* Unexpected service creation
+* Unknown service names
+* Suspicious executable paths
+* Services created by unexpected users
+* Suspicious parent processes
+* Automatic service startup
+* Other correlated security events
+
+**Screenshot:**
+`10-soc-investigation.png`
+
+---
+
+# Step 11 — Cleanup
+
+After completing the investigation, the test service was removed.
+
+```powershell
+sc.exe delete SOC-Test-Service
+```
+
+Expected output:
+
+```text
+[SC] DeleteService SUCCESS
+```
+
+The service was then verified to ensure it had been removed.
+
+**Screenshot:**
+`11-cleanup.png`
+
+---
+
+# Detection Flow
+
+```text
+Windows Endpoint
+       |
+       v
+Service Creation
+       |
+       v
+sc.exe
+       |
+       v
+Sysmon Event ID 1
+       |
+       v
+Splunk Universal Forwarder
+       |
+       v
+Splunk Enterprise
+       |
+       v
+Detection Query
+       |
+       v
+Potential Service Persistence
+       |
+       v
+SOC Investigation
+       |
+       v
+Benign / Suspicious / Malicious
+```
+
+---
+
+# MITRE ATT&CK Mapping
+
+| Technique                                        | ID        | Description                                          |
+| ------------------------------------------------ | --------- | ---------------------------------------------------- |
+| Create or Modify System Process: Windows Service | T1543.003 | Attackers can abuse Windows Services for persistence |
+
+---
+
+# Key Learning Outcomes
+
+After completing Day 22, I learned:
+
+1. How Windows Services can be abused for persistence.
+2. How `sc.exe` can create Windows Services.
+3. How Sysmon Event ID 1 records process creation.
+4. How to search Sysmon telemetry in Splunk.
+5. How to create a Splunk detection query.
+6. How to create a Sigma detection rule.
+7. How to investigate a service-creation alert.
+8. How to distinguish legitimate administrative activity from potentially malicious activity.
+9. How to map a detection to MITRE ATT&CK.
+10. How to clean up a SOC laboratory environment after testing.
+
+---
+
+# Conclusion
+
+Day 22 demonstrated a complete SOC detection workflow for Windows Service persistence.
+
+The activity was generated in a controlled laboratory environment, monitored using Sysmon, forwarded to Splunk, detected using a Splunk query, converted into a Sigma rule, and investigated using standard SOC analysis techniques.
+
+The exercise demonstrated how a SOC Analyst can move from **endpoint telemetry → detection → investigation → classification → remediation/cleanup**.
