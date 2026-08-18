@@ -730,7 +730,7 @@ title: Suspicious Windows Service Creation
 id: 8c2d5b8a-7f2e-4b3a-9d61-123456789001
 status: experimental
 description: Detects service creation using sc.exe, which may indicate persistence.
-author: Mayur
+author: -
 date: 2026-08-18
 logsource:
     product: windows
